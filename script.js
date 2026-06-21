@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const saveKeyBtn = document.getElementById('saveKeyBtn');
 
     // System Prompt for Gemini
-    const SYSTEM_PROMPT = `You are StockSage, a stock market educator.
+    const SYSTEM_PROMPT = `You are MarketMentor, a stock market educator.
 Strict Rules:
 1. Stay strictly within stock market education.
 2. Refuse off-topic questions politely.
@@ -209,6 +209,12 @@ Strict Rules:
         addMessage(trimmed, 'user');
         chatHistory.push({ sender: 'user', text: trimmed });
 
+        // Remove welcome screen if it exists
+        const welcomeScreen = document.getElementById('welcomeScreen');
+        if (welcomeScreen) {
+            welcomeScreen.remove();
+        }
+
         // Show typing
         setTyping(true);
         sendBtn.disabled = true;
@@ -244,7 +250,7 @@ Strict Rules:
         chatMessages.innerHTML = `
             <div class="message ai">
                 <div class="message-bubble">
-                    <p>Hello! I am StockSage. How can I help you learn about the stock market today?</p>
+                    <p>Hello! I am MarketMentor. How can I help you learn about the stock market today?</p>
                 </div>
             </div>
         `;
