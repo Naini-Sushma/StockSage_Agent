@@ -26,10 +26,10 @@ Strict Rules:
 7. End every educational response exactly with this phrase: "Remember: Learning the market is the first step toward making informed financial decisions."`;
 
     // API Key Management
-    let apiKey = localStorage.getItem('gemini_api_key') || '';
+    let apiKey = localStorage.getItem('groq_api_key') || '';
     try {
-        if (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_GEMINI_API_KEY) {
-            apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+        if (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_GROQ_API_KEY) {
+            apiKey = import.meta.env.VITE_GROQ_API_KEY;
         }
     } catch (e) {
         // Handle environments where import.meta is not available
@@ -49,28 +49,26 @@ Strict Rules:
     saveKeyBtn.addEventListener('click', async () => {
         apiKey = apiKeyInput.value.trim();
         if (apiKey) {
-            localStorage.setItem('gemini_api_key', apiKey);
-            console.log("Checking available models for your API key...");
+            localStorage.setItem('groq_api_key', apiKey);
+            console.log("Validating Groq API key...");
             try {
-                const checkUrl = `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`;
-                const res = await fetch(checkUrl);
+                const checkUrl = `https://api.groq.com/openai/v1/models`;
+                const res = await fetch(checkUrl, {
+                    headers: { 'Authorization': `Bearer ${apiKey}` }
+                });
                 const data = await res.json();
-                alert(
-                    data.models
-                        .map(model => model.name)
-                        .join('\n')
-                );
                 if(data.error) {
                     console.error("API Key Error:", data.error.message);
                     alert("API Key Error: " + data.error.message);
                 } else {
-                    alert("API Key Saved and Validated! Check console for supported models.");
+                    alert("Groq API Key Saved and Validated!");
                 }
             } catch(e) {
                 console.error(e);
+                alert("Error validating key. Check console.");
             }
         } else {
-            localStorage.removeItem('gemini_api_key');
+            localStorage.removeItem('groq_api_key');
         }
         toggleModal(false);
     });
@@ -126,94 +124,77 @@ Strict Rules:
         }
     }
 
-    // Call Gemini API
+    // Call Groq API
     async function fetchAIResponse(userText) {
         if (!apiKey) {
             toggleModal(true);
-            return "Please set your Gemini API key in settings first.";
+            return "Please set your Groq API key in settings first.";
         }
 
-
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
-        const contents = [];
+        const url = `https://api.groq.com/openai/v1/chat/completions`;
+        const messages = [];
         
-        // Inject system prompt as the first exchange
-        contents.push({
-            role: 'user',
-            parts: [{ text: SYSTEM_PROMPT }]
-        });
-        contents.push({
-            role: 'model',
-            parts: [{ text: 'Understood. I will act strictly as StockSage, focusing on stock market education without giving investment advice, and I will always end my responses with the required disclaimer.' }]
+        // Inject system prompt
+        messages.push({
+            role: 'system',
+            content: SYSTEM_PROMPT
         });
 
         // Add actual chat history
         chatHistory.forEach(msg => {
-            contents.push({
-                role: msg.sender === 'user' ? 'user' : 'model',
-                parts: [{ text: msg.text }]
+            messages.push({
+                role: msg.sender === 'user' ? 'user' : 'assistant',
+                content: msg.text
             });
         });
 
         // Add new user message
-        contents.push({
+        messages.push({
             role: 'user',
-            parts: [{ text: userText }]
+            content: userText
         });
 
-     const requestBody = {
-    contents: contents,
-    generationConfig: {
-        temperature: 0.7,
-        maxOutputTokens: 1000,
+        const requestBody = {
+            model: "llama3-8b-8192", // Fast and reliable Groq model
+            messages: messages,
+            temperature: 0.7,
+            max_tokens: 1000,
+        };
+
+        try {
+            console.log("Sending request to Groq...");
+            
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`
+                },
+                body: JSON.stringify(requestBody)
+            });
+
+            console.log("Response received:", response.status);
+
+            if (!response.ok) {
+                const errData = await response.json();
+                console.error("API Error:", errData);
+                return `API Error: ${errData?.error?.message || "Unknown error"}`;
+            }
+
+            const data = await response.json();
+
+            if (data.choices && data.choices[0] && data.choices[0].message) {
+                return data.choices[0].message.content;
+            }
+
+            console.log("Unexpected response:", data);
+            return "I received an unexpected response format.";
+
+        } catch (error) {
+            console.error("Fetch Error:", error);
+            return "Oops! Something went wrong with your network connection. Please check your internet and try again.";
+        }   
     }
-};
-
-console.log("Request URL:", url);
-
-try {
-    console.log("Sending request to Gemini...");
-    console.log("URL:", url);
-
-    const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(requestBody)
-    });
-
-    console.log("Response received:", response.status);
-
-    if (!response.ok) {
-        const errData = await response.json();
-        console.error("API Error:", errData);
-
-        return `API Error: ${
-            errData?.error?.message || "Unknown error"
-        }`;
-    }
-
-    const data = await response.json();
-
-    if (
-        data.candidates &&
-        data.candidates[0] &&
-        data.candidates[0].content &&
-        data.candidates[0].content.parts &&
-        data.candidates[0].content.parts[0]
-    ) {
-        return data.candidates[0].content.parts[0].text;
-    }
-
-    console.log("Unexpected response:", data);
-    return "I received an unexpected response format.";
-
-} catch (error) {
-    console.error("Fetch Error:", error);
-    return "Oops! Something went wrong with your network connection. Please check your internet and try again.";
-}   
-}
     // Handle sending message
     async function handleSend(text) {
         const trimmed = text.trim();
