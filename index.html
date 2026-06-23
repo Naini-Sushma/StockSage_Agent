@@ -13,39 +13,55 @@
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <!-- Include DOMPurify to sanitize markdown output -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
+    <!-- HTML2PDF CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
     <div class="app-container">
         <!-- Header -->
         <header class="glass-header">
             <div class="logo-container">
-                <div class="logo-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
-                </div>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 3v18h18" />
+                    <path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3" />
+                </svg>
                 <h1>StockSage</h1>
             </div>
-            <button id="settingsBtn" class="icon-button" title="Set API Key">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-            </button>
         </header>
 
-        <!-- Main Content Layout -->
-        <main class="main-content">
+        <!-- App Layout Wrapper -->
+        <div class="app-layout">
+            <!-- Left Sidebar: Search History -->
+            <aside class="history-sidebar glass-card">
+                <div class="sidebar-header">
+                    <button id="newChatBtn" class="primary-button" style="width: 100%; justify-content: center; margin-bottom: 10px;">➕ New Chat</button>
+                    <h3>Recent Chats</h3>
+                </div>
+                <div class="sidebar-list" id="sidebarList">
+                    <!-- History items injected here -->
+                </div>
+                <div class="sidebar-footer" style="flex-direction: column; align-items: center; gap: 12px; padding-bottom: 20px;">
+                </div>
+            </aside>
+
+            <!-- Main Content Layout -->
+            <main class="main-content">
             <!-- Left Panel: Hero & Info -->
             <div class="info-panel">
                 <div class="hero">
-                    <h2>MarketMentor</h2>
-                    <p>Your professional, AI-powered stock market educator. Get clear, confident answers to your financial questions.</p>
+                    <h2>StockSage</h2>
+                </div>
+
+                <div class="agent-memory-display" id="memoryDisplay" style="background: rgba(255,255,255,0.8); padding: 1rem; border-radius: 12px; font-size: 0.9rem; margin-top: -1rem; border: 1px solid var(--border-color);">
+                    <strong>🧠 Agent Memory:</strong> <span id="memoryText">Learning about you...</span>
                 </div>
 
                 <div class="examples-section">
-                    <h3>Try asking about:</h3>
+                    <h3>Try complex tasks:</h3>
                     <div class="chips-container" id="chipsContainer">
-                        <button class="chip">What is an IPO?</button>
-                        <button class="chip">Explain Nifty 50</button>
-                        <button class="chip">What is a Bull Market?</button>
-                        <button class="chip">Difference between Stocks and Mutual Funds?</button>
-                        <button class="chip">What is Market Capitalization?</button>
+                        <button class="chip">What is the current price of AAPL? Is it good for low-risk?</button>
+                        <button class="chip">Fetch TSLA stock data and explain it.</button>
+                        <button class="chip">I am a high-risk investor. What should I know about MSFT?</button>
                     </div>
                 </div>
             </div>
@@ -53,8 +69,14 @@
             <!-- Right Panel: Chat Interface -->
             <div class="chat-panel glass-card">
                 <div class="chat-header">
-                    <h3>Chat Session</h3>
-                    <button id="clearChatBtn" class="text-button">Clear Chat</button>
+                    <div style="display: flex; flex-direction: column;">
+                        <h3>Chat Session</h3>
+                        <span id="agentStatus" style="font-size: 0.8rem; color: #2563eb; font-weight: 500;">🟢 Status: Idle</span>
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <button id="downloadPdfBtn" class="text-button" style="color: #059669;">📄 PDF</button>
+                        <button id="clearChatBtn" class="text-button">Clear Chat</button>
+                    </div>
                 </div>
                 
                 <div class="chat-messages" id="chatMessages">
@@ -80,36 +102,21 @@
                         </button>
                     </div>
                     <div class="disclaimer-text">
-                        ⚠️ Disclaimer: MarketMentor is for educational purposes only and does not provide investment advice.
+                        ⚠️ Disclaimer: StockSage is for educational purposes only and does not provide investment advice.
+                    </div>
+                    <div style="font-size: 0.75rem; color: #64748b; text-align: center; line-height: 1.4; margin-top: 8px;">
+                        Built by <strong>Naini Sushma</strong> | Built for GENAI Internship - Milestone 2
                     </div>
                 </div>
             </div>
         </main>
-
-
-
-        <!-- Footer -->
-        <footer>
-            <p>Built by Sushma Naini | Built for GENAI Internship | MarketMentor</p>
-        </footer>
-
-        <!-- Settings Modal (For API Key) -->
-        <div id="settingsModal" class="modal hidden">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h3>Settings</h3>
-                    <button id="closeModalBtn" class="icon-button">&times;</button>
-                </div>
-                <div class="modal-body">
-                    <label for="apiKeyInput">Groq API Key</label>
-                    <input type="password" id="apiKeyInput" placeholder="Enter your Groq API key" />
-                    <p class="modal-help">Your key is stored securely in your browser's local storage and is never sent to any server other than Groq's API.</p>
-                </div>
-                <div class="modal-footer">
-                    <button id="saveKeyBtn" class="primary-button full-width">Save Key</button>
-                </div>
-            </div>
         </div>
+
+
+
+        <!-- Removed hidden footer -->
+
+        <!-- Settings Modal Removed for Vercel Deployment -->
     </div>
     <script type="module" src="/script.js"></script>
 </body>
