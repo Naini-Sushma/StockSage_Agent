@@ -14,22 +14,10 @@ StockSage is an intelligent, educational stock market chatbot designed to help u
 - **Premium Glassmorphism UI:** Features a sleek, modern, frosted-glass design with dynamic glowing stock cards.
 - **Vercel Ready:** Fully configured with a `vercel.json` proxy to ensure live stock data fetching works perfectly in a production environment.
 
-## 🚀 Getting Started
+## 👤 Author
 
-### Local Development
-1. Clone this repository.
-2. Open the project folder in your terminal.
-3. Install dependencies: `npm install`
-4. Start the Vite development server: `npm run dev`
-5. Open your browser to `http://localhost:5173`
-
-*(Note: The Groq API key is safely hardcoded for demo purposes, so no `.env` file configuration is necessary!)*
-
-### Deployment
-This project is configured for 1-click deployment on **Vercel**. 
-1. Push your code to GitHub.
-2. Log into Vercel and Import your repository.
-3. Click Deploy! The `vercel.json` file will automatically handle the Yahoo Finance CORS proxy.
+- **Naini Sushma**
+- Developed for GENAI Internship - Milestone 2
 
 ## ⚠️ Disclaimer
 StockSage is an educational tool. It is hard-coded to refuse giving personalized investment advice, portfolio allocation, or buy/sell recommendations. Always do your own research or consult a certified financial planner.
