@@ -28,8 +28,6 @@ This project is built on a **Serverless, Frontend-Driven Agentic Architecture**:
 - **AI / LLM Engine:** Meta Llama-3 (8B) via the Groq API
 - **Live Data Provider:** Yahoo Finance API
 - **Deployment & Hosting:** Vercel (Edge network & Serverless Functions)
-- **Database / State:** Browser `localStorage`
-- **Libraries:** DOMPurify (Security), Marked.js (Markdown Parsing), html2pdf.js (PDF Export)
 
 ## 👤 Author
 
