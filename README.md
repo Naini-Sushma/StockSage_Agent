@@ -14,6 +14,17 @@ StockSage is an intelligent, educational stock market chatbot designed to help u
 - **Premium Glassmorphism UI:** Features a sleek, modern, frosted-glass design with dynamic glowing stock cards.
 - **Vercel Ready:** Fully configured with a `vercel.json` proxy to ensure live stock data fetching works perfectly in a production environment.
 
+## 🏗️ Architecture & Tech Stack
+
+This project uses a **Serverless, Frontend-Driven Agentic Architecture**:
+
+- **Frontend UI & Logic:** Vanilla HTML, CSS (Glassmorphism), JavaScript (ES6+), Vite.
+- **Agentic Engine (LLM):** Meta Llama-3 (8B) hosted on the Groq API.
+- **External Data:** Yahoo Finance API for real-time stock data.
+- **Backend & Deployment:** Vercel (Edge network) with `vercel.json` configured as a reverse proxy to bypass CORS restrictions.
+- **State Management:** Browser `localStorage` for persisting chat history and the user's Risk/Interest Memory Profile.
+- **Libraries:** DOMPurify, Marked.js (Markdown parsing), html2pdf.js (PDF generation).
+
 ## 👤 Author
 
 - **Naini Sushma**
